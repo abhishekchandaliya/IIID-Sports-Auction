@@ -4,10 +4,10 @@ import { getDatabase } from 'firebase/database';
 // REPLACE WITH YOUR ACTUAL FIREBASE KEYS
 const firebaseConfig = {
   apiKey: "AIzaSy...",
-  authDomain: "auction-2026.firebaseapp.com",
-  databaseURL: "https://auction-2026-default-rtdb.firebaseio.com",
-  projectId: "auction-2026",
-  storageBucket: "auction-2026.appspot.com",
+  authDomain: "iiid-auction.firebaseapp.com",
+  databaseURL: "https://iiid-auction-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "iiid-auction",
+  storageBucket: "iiid-auction.appspot.com",
   messagingSenderId: "...",
   appId: "..."
 };
