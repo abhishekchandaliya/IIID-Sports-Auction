@@ -251,4 +251,155 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-amber-500/30">
       
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg
+      <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="bg-gradient-to-br from-amber-500 to-amber-700 p-2 rounded-lg shadow-lg shadow-amber-900/40">
+                <Trophy className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            </div>
+            <h1 className="text-lg md:text-2xl font-black bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent tracking-tight">
+              IIID Sports Auction 2026
+            </h1>
+            <span className={`hidden md:inline-flex ml-2 px-2 py-0.5 rounded-full text-[10px] border uppercase tracking-wide font-bold ${isAdmin ? 'bg-emerald-900/50 text-emerald-400 border-emerald-500/30' : 'bg-slate-800 text-slate-500 border-slate-700'}`}>
+                {isAdmin ? 'Admin Mode' : 'Viewer Mode'}
+            </span>
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            <nav className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-xl border border-slate-700/50">
+                <button onClick={() => switchTab(Tab.DASHBOARD)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === Tab.DASHBOARD ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>
+                    <LayoutDashboard className="w-4 h-4" /> <span>Dashboard</span>
+                </button>
+                {isAdmin && (
+                    <button onClick={() => switchTab(Tab.AUCTION)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === Tab.AUCTION ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>
+                        <Gavel className="w-4 h-4" /> <span>Console</span>
+                    </button>
+                )}
+                <button onClick={() => switchTab(Tab.ROSTER)} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === Tab.ROSTER ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}>
+                    <Users className="w-4 h-4" /> <span>Teams</span>
+                </button>
+                <button onClick={() => switchTab(Tab.SETTINGS)} className={`p-2 rounded-lg transition-all ${activeTab === Tab.SETTINGS ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}>
+                    {isAdmin ? <Settings className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                </button>
+            </nav>
+            {isAdmin && <button onClick={() => setIsAdmin(false)} className="p-2 text-slate-400 hover:text-red-400" title="Logout"><Unlock className="w-5 h-5" /></button>}
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-6 md:py-8 max-w-[1600px]">
+        
+        {!dataLoaded && activeTab !== Tab.SETTINGS ? (
+           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 animate-in fade-in duration-700">
+                <div className="bg-slate-900 p-8 rounded-full shadow-2xl border border-slate-800">
+                    <Database className="w-16 h-16 text-indigo-500 mb-2" />
+                </div>
+                <div>
+                    <h2 className="text-4xl font-black text-white mb-2">Initialize Database</h2>
+                    <p className="text-slate-400 max-w-lg mx-auto text-lg">Welcome to Sports Auction Pro.</p>
+                </div>
+                <div className="w-full max-w-2xl bg-slate-900/50 backdrop-blur-sm p-8 rounded-2xl border border-slate-800 shadow-xl">
+                      <FileUploader label="Upload Master Player.csv" onDataLoaded={handleMasterLoad} />
+                </div>
+           </div>
+        ) : (
+            <>
+                {activeTab === Tab.DASHBOARD && (
+                    <Dashboard 
+                        teams={teams} 
+                        players={players} 
+                        onTeamSelect={(team) => { setTargetTeam(team); setActiveTab(Tab.ROSTER); }} 
+                        currentAuctionPlayerId={currentAuctionPlayerId}
+                        config={config}
+                    />
+                )}
+                {activeTab === Tab.AUCTION && isAdmin && (
+                    <AuctionConsole 
+                        players={players} 
+                        teams={teams} 
+                        onSellPlayer={handleSellPlayer} 
+                        onUnsellPlayer={handleUnsellPlayer}
+                        onUpdatePlayer={handleUpdatePlayer}
+                        isReadOnly={!isAdmin} 
+                        currentPlayerId={currentAuctionPlayerId}
+                        onSelectPlayer={(id) => set(ref(db, 'current_auction_id'), id)} 
+                        recentActivity={recentActivity}
+                        config={config}
+                    />
+                )}
+                {activeTab === Tab.ROSTER && <RosterView players={players} teams={teams} recentActivity={recentActivity} targetTeam={targetTeam} config={config} />}
+                
+                {/* SETTINGS TAB */}
+                {activeTab === Tab.SETTINGS && (
+                    <div className="max-w-5xl mx-auto pt-6 pb-20">
+                        {/* SAFE DEVELOPER PROFILE */}
+                        <div className="mb-8 flex justify-center">
+                             {players.length > 0 && <DeveloperProfile players={players} variant="full" />}
+                        </div>
+
+                        {!isAdmin ? (
+                            <div className="max-w-md mx-auto bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl text-center">
+                                <div className="inline-flex p-4 bg-slate-800 rounded-full mb-6 text-indigo-400 border border-slate-700"><ShieldCheck className="w-8 h-8" /></div>
+                                <h2 className="text-3xl font-black text-white mb-3">Admin Access</h2>
+                                <form onSubmit={handleLogin} className="space-y-4">
+                                    <input type="password" placeholder="Password" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-5 py-4 text-white outline-none" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} />
+                                    {loginError && <p className="text-red-400 text-sm font-medium">Incorrect password.</p>}
+                                    <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg">Login</button>
+                                </form>
+                            </div>
+                        ) : (
+                            <div className="space-y-8">
+                                {/* CONFIGURATION */}
+                                <div className="bg-slate-900/50 p-6 rounded-2xl border border-indigo-500/30 shadow-xl">
+                                    <h3 className="text-2xl font-black text-white mb-6">Tournament Setup</h3>
+                                    <form onSubmit={handleSaveConfig} className="space-y-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Purse Limit</label>
+                                                <input type="number" className="w-full bg-slate-950 border border-slate-700 rounded-xl py-2 px-4 text-white" value={tempConfig.purseLimit} onChange={(e) => setTempConfig({...tempConfig, purseLimit: parseInt(e.target.value) || 0})} />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Squad Size</label>
+                                                <input type="number" className="w-full bg-slate-950 border border-slate-700 rounded-xl py-2 px-4 text-white" value={tempConfig.maxSquadSize} onChange={(e) => setTempConfig({...tempConfig, maxSquadSize: parseInt(e.target.value) || 0})} />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-slate-400 uppercase mb-2">Base Price</label>
+                                                <input type="number" className="w-full bg-slate-950 border border-slate-700 rounded-xl py-2 px-4 text-white" value={tempConfig.basePrice} onChange={(e) => setTempConfig({...tempConfig, basePrice: parseInt(e.target.value) || 0})} />
+                                            </div>
+                                        </div>
+                                        <button type="submit" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg flex items-center gap-2"><Save className="w-5 h-5" /> Save Rules</button>
+                                        {configSaved && <span className="text-emerald-400 font-bold ml-4">Saved!</span>}
+                                    </form>
+                                </div>
+
+                                {/* CAPTAINS & DATA */}
+                                <div className="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700/50 shadow-xl">
+                                    <h3 className="text-2xl font-black text-white mb-6">Management</h3>
+                                    <CaptainAssignment players={players} teams={teams} onAssign={handleAssignCaptain} onRemove={handleRemoveCaptain} />
+                                    
+                                    <div className="mt-8 pt-8 border-t border-slate-700/50">
+                                        <h4 className="text-xl font-bold text-white mb-4">Data Tools</h4>
+                                        <div className="flex gap-4">
+                                            <button onClick={() => handleExport('xlsx')} className="flex items-center gap-2 px-6 py-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl font-bold"><Download className="w-5 h-5"/> Download Excel</button>
+                                            <button onClick={handleReset} className="flex items-center gap-2 px-6 py-3 bg-red-700 hover:bg-red-600 text-white rounded-xl font-bold"><Trash2 className="w-5 h-5"/> Factory Reset</button>
+                                        </div>
+                                    </div>
+                                    {/* EXTRA UPLOAD BUTTON IN SETTINGS */}
+                                    <div className="mt-8">
+                                        <h4 className="text-sm font-bold text-slate-400 uppercase mb-2">Append/Re-Upload Data</h4>
+                                        <FileUploader label="Upload CSV" onDataLoaded={handleMasterLoad} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default App;
