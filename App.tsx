@@ -7,7 +7,6 @@ import AuctionConsole from './components/AuctionConsole';
 import RosterView from './components/RosterView';
 import FileUploader from './components/FileUploader';
 import CaptainAssignment from './components/CaptainAssignment';
-import DeveloperProfile from './components/DeveloperProfile';
 import { LayoutDashboard, Gavel, Users, Settings, Trophy, UploadCloud, Trash2, Crown, Lock, Unlock, Download, ChevronDown, Database, Menu, X, Save, Settings2, AlertCircle, CheckCircle, ShieldCheck, Scale } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -487,9 +486,6 @@ const App: React.FC = () => {
                 {activeTab === Tab.ROSTER && <RosterView players={players} teams={teams} recentActivity={recentActivity} targetTeam={targetTeam} config={config} />}
                 {activeTab === Tab.SETTINGS && (
                     <div className="max-w-5xl mx-auto pt-6 pb-20">
-                        <div className="mb-8 flex justify-center">
-                            <DeveloperProfile players={players} variant="full" />
-                        </div>
 
                         {!isAdmin ? (
                             <div className="max-w-md mx-auto bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl text-center">
